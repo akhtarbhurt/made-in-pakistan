@@ -1,0 +1,30 @@
+{
+  "name": "mern-e-commerce-backend",
+  "version": "1.0.0",
+  "description": "this is e commerce website in MERN",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "nodemon --exec ts-node -r dotenv/config src/index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/mongoose": "^5.11.97",
+    "@types/node": "^20.14.10",
+    "cloudinary": "^2.3.0",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "kill-port": "^2.0.1",
+    "mongoose": "^8.5.1",
+    "multer": "^1.4.5-lts.1"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.7",
+    "@types/express": "^4.17.21",
+    "@types/multer": "^1.4.11",
+    "nodemon": "^3.1.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.3"
+  }
+}
