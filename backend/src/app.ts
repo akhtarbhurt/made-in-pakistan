@@ -16,6 +16,9 @@ import brand from "./routes/brand.routes"
 import shipping from "./routes/shipping.routes"
 import order from "./routes/order.routes"
 import tag from "./routes/tag.routes"
+import setting from "./routes/setting.routes"
+import coupon from "./routes/coupan.routes"
+import post from "./routes/post.routes"
 
 app.use("/api", banner )
 app.use("/api", category )
@@ -23,6 +26,9 @@ app.use("/api", brand)
 app.use("/api", shipping)
 app.use("/api", order )
 app.use("/api", tag )
+app.use("/api", setting)
+app.use("/api", coupon)
+app.use("/api", post )
 
 //this is error handling middleware
 
