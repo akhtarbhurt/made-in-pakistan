@@ -19,6 +19,7 @@ import tag from "./routes/tag.routes"
 import setting from "./routes/setting.routes"
 import coupon from "./routes/coupan.routes"
 import post from "./routes/post.routes"
+import product from "./routes/product.route"
 
 app.use("/api", banner )
 app.use("/api", category )
@@ -29,6 +30,7 @@ app.use("/api", tag )
 app.use("/api", setting)
 app.use("/api", coupon)
 app.use("/api", post )
+app.use("/api", product )
 
 //this is error handling middleware
 
