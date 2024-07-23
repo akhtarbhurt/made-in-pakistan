@@ -21,6 +21,7 @@ import coupon from "./routes/coupan.routes"
 import post from "./routes/post.routes"
 import product from "./routes/product.route"
 import user from "./routes/user.routes"
+import review from "./routes/review.routes"
 
 app.use("/api", banner )
 app.use("/api", category )
@@ -33,6 +34,7 @@ app.use("/api", coupon)
 app.use("/api", post )
 app.use("/api", product )
 app.use("/api", user )
+app.use("/api", review )
 
 //this is error handling middleware
 

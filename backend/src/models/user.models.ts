@@ -13,6 +13,8 @@ export interface IUser extends Document {
     isPasswordCorrect(password: string): Promise<boolean>;
     generateRefreshToken(): any;
     generateAccessToken(): any;
+    resetPasswordToken: string | undefined ;
+    resetPasswordExpires: number | undefined ;
 }
 
 const userSchema: Schema<IUser> = new Schema({
@@ -39,7 +41,15 @@ const userSchema: Schema<IUser> = new Schema({
         enum: ["user", "admin"],
         default: "user",
         required: true
-    }
+    },
+    resetPasswordToken: {
+        type: String,
+        required: false,
+    },
+    resetPasswordExpires: {
+        type: Number,
+        required: false,
+    },
 });
 
 userSchema.pre<IUser>("save", async function (next) {
