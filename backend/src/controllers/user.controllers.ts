@@ -5,8 +5,8 @@ import { ApiResponse } from "../utils/ApiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
-import crypto from 'crypto';
-import bcrypt from "bcrypt"
+import crypto from "crypto";
+import bcrypt from "bcrypt";
 
 // Interface for the request body in userRegistration handler
 interface UserRegistrationRequestBody {
@@ -75,61 +75,58 @@ const userRegistration = asyncHandler(
 
 // User login handler
 const userLogin = asyncHandler(
-  async (req: CustomRequest, res: Response, next: NextFunction) => {
-    try {
-      const { email, password }: UserLoginRequestBody = req.body;
-
-      if (!(password || email)) {
-        throw new ApiError(400, "Invalid credentials");
+    async (req: CustomRequest, res: Response, next: NextFunction) => {
+      try {
+        const { email, password }: UserLoginRequestBody = req.body;
+  
+        if (!(password || email)) {
+          throw new ApiError(400, "Invalid credentials");
+        }
+  
+        const user = await User.findOne({ email }).select("+password");
+  
+        if (!user) {
+          throw new ApiError(400, "email does not exist");
+        }
+  
+        console.log("Retrieved user:", user); // Debugging line
+  
+        const isPasswordValid = await user.isPasswordCorrect(password);
+  
+        if (!isPasswordValid) {
+          throw new ApiError(400, "invalid user credential");
+        }
+  
+        const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
+  
+  
+        const loggedInUser = await User.findById(user._id).select(" -refreshToken");
+  
+        const options: CookieOptions = {
+          httpOnly: true,
+          sameSite: "strict",
+        };
+        return res
+          .status(200)
+          .cookie("accessToken", accessToken, options)
+          .cookie("refreshToken", refreshToken, options)
+          .json(
+            new ApiResponse(
+              200,
+              {
+                user: loggedInUser,
+                accessToken,
+                refreshToken,
+              },
+              "User logged In Successfully"
+            )
+          );
+      } catch (error) {
+        next(error);
       }
-
-      const user = await User.findOne({
-        email,
-      });
-
-      if (!user) {
-        throw new ApiError(400, "email does not exist");
-      }
-
-      const isPasswordValid = await user.isPasswordCorrect(password);
-
-      if (!isPasswordValid) {
-        throw new ApiError(400, "invalid user credential");
-      }
-
-      const { accessToken, refreshToken } =
-        await generateAccessAndRefreshTokens(user._id);
-
-      console.log("Generated access login token:", accessToken);
-
-      const loggedInUser = await User.findById(user._id).select(
-        "-password -refreshToken"
-      );
-
-      const options: CookieOptions = {
-        httpOnly: true,
-        sameSite: "strict",
-      };
-      return res
-        .status(200)
-        .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", refreshToken, options)
-        .json(
-          new ApiResponse(
-            200,
-            {
-              user: loggedInUser,
-              accessToken,
-              refreshToken,
-            },
-            "User logged In Successfully"
-          )
-        );
-    } catch (error) {
-      next(error);
     }
-  }
-);
+  );
+  
 
 // Logout the user handler
 const logoutUser = asyncHandler(async (req: CustomRequest, res) => {
@@ -216,7 +213,7 @@ const getCurrentUser = asyncHandler(
 );
 
 const generateResetToken = (): string => {
-    return crypto.randomBytes(32).toString('hex');
+  return crypto.randomBytes(32).toString("hex");
 };
 
 const sendResetEmail = async (email: string, token: string) => {
@@ -242,12 +239,13 @@ const sendResetEmail = async (email: string, token: string) => {
 };
 
 // Password reset request handler
-const requestPasswordReset = asyncHandler(async (req: Request, res: Response) => {
+const requestPasswordReset = asyncHandler(
+  async (req: Request, res: Response) => {
     const { email } = req.body;
 
     const user = await User.findOne({ email });
     if (!user) {
-        throw new ApiError(404, 'User not found');
+      throw new ApiError(404, "User not found");
     }
 
     const resetToken = generateResetToken();
@@ -258,8 +256,11 @@ const requestPasswordReset = asyncHandler(async (req: Request, res: Response) =>
 
     await sendResetEmail(email, resetToken);
 
-    return res.status(200).json(new ApiResponse(200, {}, 'Password reset email sent successfully'));
-});
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Password reset email sent successfully"));
+  }
+);
 
 // Password reset handler
 const resetPassword = asyncHandler(async (req: Request, res: Response) => {
@@ -288,6 +289,26 @@ const resetPassword = asyncHandler(async (req: Request, res: Response) => {
 });
 
 
+const changePassword = asyncHandler(
+  async (req: CustomRequest, res: Response) => {
+    const { currentPassword, password, confirmPassword } = req.body;
+
+    if (password !== confirmPassword) {
+      throw new ApiError(400, "New passwords do not match");
+    }
+
+    if (!req.user) {
+      throw new ApiError(401, "Unauthorized");
+    }
+
+    await req.user.changePassword(currentPassword, password);
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Password changed successfully"));
+  }
+);
+
 export {
   userRegistration,
   userLogin,
@@ -295,5 +316,6 @@ export {
   refreshAccessToken,
   getCurrentUser,
   requestPasswordReset,
-  resetPassword
+  resetPassword,
+  changePassword,
 };

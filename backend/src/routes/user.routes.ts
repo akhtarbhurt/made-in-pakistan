@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getCurrentUser, logoutUser, refreshAccessToken, requestPasswordReset, resetPassword, userLogin, userRegistration } from "../controllers/user.controllers";
+import { changePassword, getCurrentUser, logoutUser, refreshAccessToken, requestPasswordReset, resetPassword, userLogin, userRegistration } from "../controllers/user.controllers";
 import validate from "../middleware/validator.middleware";
 import { validator } from "../utils/validator";
 import { verifyJWT } from "../middleware/auth.middleware";
@@ -24,6 +24,7 @@ router.route("/user-route").get(verifyJWT, verifyRole(["user", "admin"]), (req, 
 
 router.route('/request-password-reset').post(requestPasswordReset);
 router.route('/reset-password').post(resetPassword);
+router.route("/change-password").post(verifyJWT, changePassword);
 
 
 export default router;
